@@ -81,6 +81,12 @@ if st.sidebar.button("Predict Customer Risk"):
     # We use the loaded scaler to transform the user input
     input_df_scaled = scaler.transform(input_df)
 
+    # --- TEMPORARY DEBUGGING LINE ---
+    st.write("Debug - Scaled Values:", input_df_scaled)
+    # --------------------------------
+    
+    churn_prob = model.predict_proba(input_df_scaled)[0][1]
+
     # 5. Prediction
     # We use the SCALED input for prediction
     churn_prob = model.predict_proba(input_df_scaled)[0][1]
