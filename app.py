@@ -73,23 +73,21 @@ if st.sidebar.button("Predict Customer Risk"):
     # Generate dummies (One-Hot Encoding)
     input_df = pd.get_dummies(input_df)
     
-    # --- ALIGN COLUMNS ---
-    # This aligns the input data with the model's expected columns
+    # Align Columns
     input_df = input_df.reindex(columns=model_columns, fill_value=0)
     
-    # --- SCALE THE INPUT ---
-    # We use the loaded scaler to transform the user input
-    input_df_scaled = scaler.transform(input_df)
-
-    # --- TEMPORARY DEBUGGING LINE ---
-    st.write("Debug - Scaled Values:", input_df_scaled)
-    # --------------------------------
+    # --- NEW SCALING LOGIC (Matches your Notebook) ---
+    # We only scale the specific columns you trained on
+    cols_to_scale = ['MonthlyCharges', 'TotalCharges']
     
-    churn_prob = model.predict_proba(input_df_scaled)[0][1]
-
-    # 5. Prediction
-    # We use the SCALED input for prediction
-    churn_prob = model.predict_proba(input_df_scaled)[0][1]
+    # We copy the dataframe to avoid warnings
+    input_df_ready = input_df.copy()
+    
+    # Scale ONLY the 2 numeric columns
+    input_df_ready[cols_to_scale] = scaler.transform(input_df[cols_to_scale])
+    
+    # 5. Prediction (Use the partially scaled dataframe)
+    churn_prob = model.predict_proba(input_df_ready)[0][1]
     
     # Apply the Slider Threshold
     prediction = 1 if churn_prob > threshold else 0
